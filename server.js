@@ -10,6 +10,7 @@ app.use(express.json());
 
 app.use(express.static("public"))
 
+let id = 0;
 
 function readJSON(){
     let dbData = fs.readFileSync(path.join(__dirname, "/db/db.json"), "utf8");
@@ -38,11 +39,22 @@ app.post("/api/notes", function (req, res) {
     let addNote = {
         title: req.body.title,
         text: req.body.text,
+        id: Math.floor(Math.random()*100)
     };
+    console.log(id)
     dbData.push(addNote)
     fs.writeFileSync(path.join(__dirname, "/db/db.json"), JSON.stringify(dbData, null, 2));
     res.send("Success!")
 });
+
+app.delete("/api/notes/:id", function (req, res){
+    let dbData = readJSON();
+    let dataArray = dbData.filter(function(note){
+        return note.id != req.params.id
+    })
+    fs.writeFileSync(path.join(__dirname, "/db/db.json"), JSON.stringify(dataArray, null, 2))
+    res.send("Success!")
+})
 
 app.listen(PORT, function () {
     console.log("Listening on port " + PORT)
